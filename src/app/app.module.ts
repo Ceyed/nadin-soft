@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { appConfig } from './configs/app.config';
 import { typeormConfig } from './configs/typeorm.config';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -22,6 +23,7 @@ export const NADIN_DB_CONFIG: Pick<
       isGlobal: true,
       cache: true,
     }),
+    ConfigModule.forFeature(appConfig),
     ConfigModule.forFeature(typeormConfig),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(typeormConfig)],
