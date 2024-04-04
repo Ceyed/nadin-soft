@@ -1,18 +1,17 @@
-import 'dotenv/config';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as path from 'path';
+import { AuthModule } from 'src/modules/auth/auth.module';
+import { UsersModule } from 'src/modules/users/users.module';
+import { DataSourceOptions } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { appConfig } from './configs/app.config';
+import { jwtConfig } from './configs/jwt.config';
 import { typeormConfig } from './configs/typeorm.config';
-import { ConfigModule, ConfigType } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSourceOptions } from 'typeorm';
-import * as path from 'path';
 
-export const NADIN_DB_CONFIG: Pick<
-  DataSourceOptions,
-  'entities' | 'migrations'
-> = {
+export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'> = {
   migrations: [`${path.join(__dirname, './')}migrations/*.{ts,js}`],
   entities: [`${path.join(__dirname, './')}entities/**/*.entity.{ts,js}`],
 };
@@ -25,6 +24,7 @@ export const NADIN_DB_CONFIG: Pick<
     }),
     ConfigModule.forFeature(appConfig),
     ConfigModule.forFeature(typeormConfig),
+    ConfigModule.forFeature(jwtConfig),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(typeormConfig)],
       useFactory: (typeormConfigService: ConfigType<typeof typeormConfig>) =>
@@ -42,9 +42,11 @@ export const NADIN_DB_CONFIG: Pick<
           logging: 'all',
           autoLoadEntities: true,
           migrationsTableName: 'migrations',
-        } as DataSourceOptions),
+        }) as DataSourceOptions,
       inject: [typeormConfig.KEY],
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
