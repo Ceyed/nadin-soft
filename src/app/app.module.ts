@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
+import { AuthModule } from 'src/modules/auth/auth.module';
+import { UsersModule } from 'src/modules/users/users.module';
 import { DataSourceOptions } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -43,6 +45,8 @@ export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'>
         }) as DataSourceOptions,
       inject: [typeormConfig.KEY],
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

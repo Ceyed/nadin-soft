@@ -16,9 +16,9 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@nadin/libs": ["libs/src/index.ts"]
-    }
+    "noFallthroughCasesInSwitch": false
+    //    "paths": {
+    //      "@nadin/libs": ["libs/src/index.ts"]
+    //    }
   }
 }

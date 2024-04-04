@@ -1,6 +1,7 @@
-import { InvalidatedRefreshTokenError } from './invalidated-refresh-token-error.storage';
 import { Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
+import { uuid } from 'libs/src';
+import { InvalidatedRefreshTokenError } from './invalidated-refresh-token-error.storage';
 
 @Injectable()
 export class RefreshTokenIdsStorage implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -14,11 +15,11 @@ export class RefreshTokenIdsStorage implements OnApplicationBootstrap, OnApplica
     return this.redisClient.quit();
   }
 
-  async insert(userId: number, tokenId: string): Promise<void> {
+  async insert(userId: uuid, tokenId: string): Promise<void> {
     await this.redisClient.set(this.getKey(userId), tokenId);
   }
 
-  async validate(userId: number, tokenId: string): Promise<boolean> {
+  async validate(userId: uuid, tokenId: string): Promise<boolean> {
     const storageId: string = await this.redisClient.get(this.getKey(userId));
     if (storageId !== tokenId) {
       throw new InvalidatedRefreshTokenError();
@@ -26,11 +27,11 @@ export class RefreshTokenIdsStorage implements OnApplicationBootstrap, OnApplica
     return true;
   }
 
-  async invalidate(userId: number): Promise<void> {
+  async invalidate(userId: uuid): Promise<void> {
     await this.redisClient.del(this.getKey(userId));
   }
 
-  getKey(userId: number): string {
+  getKey(userId: uuid): string {
     return `user-${userId}`;
   }
 }
