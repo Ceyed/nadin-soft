@@ -1,24 +1,19 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import jwtConfig from '../../app/configs/jwt.config';
+import { AccessTokenGuard } from '../../../libs/src/lib/guards/access-token.guard';
+import { AuthenticationGuard } from '../../../libs/src/lib/guards/authentication.guard';
+import { RoleGuard } from '../../../libs/src/lib/guards/roles.guard';
 import { AuthenticationController } from './authentication/authentication.controller';
 import { AuthenticationService } from './authentication/authentication.service';
-import { AccessTokenGuard } from './authentication/guards/access-token.guard';
-import { AuthenticationGuard } from './authentication/guards/authentication.guard';
 import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.storage/refresh-token-ids.storage';
-import { RoleGuard } from './authorization/guards/roles.guard';
 import { BcryptService } from './hashing/bcrypt.service';
 import { HashingService } from './hashing/hashing.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
+    //TypeOrmModule.forFeature([User]),
+    //JwtModule.registerAsync(jwtConfig.asProvider()),
+    //ConfigModule.forFeature(jwtConfig),
   ],
   providers: [
     {
@@ -39,4 +34,4 @@ import { HashingService } from './hashing/hashing.service';
   ],
   controllers: [AuthenticationController],
 })
-export class IamModule {}
+export class AuthModule {}

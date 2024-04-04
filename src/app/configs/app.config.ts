@@ -1,6 +1,6 @@
 // import { registerConfig } from '@nadin/libs/utils';
-import { registerConfig } from 'libs/src/lib/utils/register-config.util';
 import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { registerConfig } from 'libs/src/lib/utils/register-config.util';
 
 export enum APP_CONFIG {
   NODE_ENV = 'NODE_ENV',

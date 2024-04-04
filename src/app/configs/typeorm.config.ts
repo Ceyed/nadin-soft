@@ -1,5 +1,6 @@
-import { registerConfig } from 'libs/src';
+// import { registerConfig } from '@nadin/libs';
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { registerConfig } from 'libs/src/lib/utils/register-config.util';
 
 enum TYPEORM_CONFIG {
   TYPEORM_CONNECTION = 'TYPEORM_CONNECTION',

@@ -1,7 +1,8 @@
-import { registerConfig } from '@nadin/libs';
+// import { registerConfig } from '@nadin/libs';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { registerConfig } from 'libs/src/lib/utils/register-config.util';
 
-enum JwtConfigEnum {
+enum JWT_CONFIG {
   JWT_SECRET = 'JWT_SECRET',
   JWT_TOKEN_AUDIENCE = 'JWT_TOKEN_AUDIENCE',
   JWT_TOKEN_ISSUER = 'JWT_TOKEN_ISSUER',
@@ -12,21 +13,21 @@ enum JwtConfigEnum {
 export class JwtConfig {
   @IsString()
   @IsNotEmpty()
-  jwtSecret: string;
+  secret: string;
 
   @IsString()
   @IsNotEmpty()
-  jwtTokenAudience: string;
+  audience: string;
 
   @IsString()
   @IsNotEmpty()
-  jwtTokenIssuer: string;
+  issuer: string;
 
   @IsNumber()
-  jwtAccessTokenTtl: number;
+  accessTokenTtl: number;
 
   @IsNumber()
-  jwtRefreshTokenTtl: number;
+  refreshTokenTtl: number;
 
   constructor(obj: Partial<JwtConfig>) {
     Object.assign(this, obj);
@@ -35,10 +36,10 @@ export class JwtConfig {
 
 export const jwtConfig = registerConfig(JwtConfig, () => {
   return new JwtConfig({
-    jwtSecret: process.env[JwtConfigEnum.JWT_SECRET],
-    jwtTokenAudience: process.env[JwtConfigEnum.JWT_TOKEN_AUDIENCE],
-    jwtTokenIssuer: process.env[JwtConfigEnum.JWT_TOKEN_ISSUER],
-    jwtAccessTokenTtl: parseInt(process.env[JwtConfigEnum.JWT_ACCESS_TOKEN_TTL] ?? '3600', 10),
-    jwtRefreshTokenTtl: parseInt(process.env[JwtConfigEnum.JWT_REFRESH_TOKEN_TTL] ?? '86400', 10),
+    secret: process.env[JWT_CONFIG.JWT_SECRET],
+    audience: process.env[JWT_CONFIG.JWT_TOKEN_AUDIENCE],
+    issuer: process.env[JWT_CONFIG.JWT_TOKEN_ISSUER],
+    accessTokenTtl: parseInt(process.env[JWT_CONFIG.JWT_ACCESS_TOKEN_TTL] ?? '3600', 10),
+    refreshTokenTtl: parseInt(process.env[JWT_CONFIG.JWT_REFRESH_TOKEN_TTL] ?? '86400', 10),
   });
 });

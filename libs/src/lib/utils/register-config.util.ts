@@ -3,6 +3,7 @@ import { ConfigFactoryKeyHost } from '@nestjs/config/dist/utils/register-as.util
 import { registerAs } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import 'dotenv/config';
 
 export declare type ClassConstructor<T> = {
   new (...args: any[]): T;
@@ -21,11 +22,7 @@ export function registerConfig<
   const errors = validateSync(instance);
   if (errors.length > 0) {
     console.log('config instance is: ', instance);
-    throw new Error(
-      ['Config Validation Error', ...errors.map((x) => x.toString())].join(
-        '\n',
-      ),
-    );
+    throw new Error(['Config Validation Error', ...errors.map((x) => x.toString())].join('\n'));
   }
   return registerAs(classConstructor.name, () => instance);
 }

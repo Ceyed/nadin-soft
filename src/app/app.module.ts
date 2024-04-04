@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import 'dotenv/config';
 import * as path from 'path';
 import { DataSourceOptions } from 'typeorm';
 import { AppController } from './app.controller';
