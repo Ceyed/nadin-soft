@@ -35,7 +35,7 @@ export class TypeormConfig {
   password: string;
 
   @IsBoolean()
-  synchronize = false;
+  synchronize: boolean = false;
 
   constructor(obj: Partial<TypeormConfig>) {
     Object.assign(this, obj);
@@ -51,7 +51,7 @@ export const typeormConfig = registerConfig(TypeormConfig, () => {
     database: process.env[TYPEORM_CONFIG.TYPEORM_DATABASE],
     username: process.env[TYPEORM_CONFIG.TYPEORM_USERNAME],
     password: process.env[TYPEORM_CONFIG.TYPEORM_PASSWORD],
-    synchronize: synchronize ? synchronize.toLowerCase() === 'true' : undefined,
+    synchronize: synchronize ? synchronize.toLowerCase() === 'true' : false,
     port: port ? +port : undefined,
   });
 });

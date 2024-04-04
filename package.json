@@ -13,7 +13,12 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "migration": "pnpm run typeorm -- migration:run -t each -d libs/src/lib/database/data-source.ts"
+
+    "typeorm": "typeorm-ts-node-commonjs -d ./libs/src/lib/database/data-source.ts",
+    "migration:create": "typeorm migration:create",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

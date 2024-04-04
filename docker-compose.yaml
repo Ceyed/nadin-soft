@@ -5,11 +5,7 @@ services:
     image: mysql
     container_name: mysql
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: nadin_root_password
-      MYSQL_DATABASE: nadin_db
-      MYSQL_USER: nadin_user
-      MYSQL_PASSWORD: nadin_password
+    env_file: .env
     ports:
       - '3306:3306'
     volumes:
