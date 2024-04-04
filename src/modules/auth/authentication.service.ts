@@ -1,18 +1,18 @@
 import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
+import { UserAuthModel, uuid } from 'libs/src';
+import { UserEntity } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
+import { Repository } from 'typeorm';
 import { RefreshTokenDto } from '../../../libs/src/lib/dto/refresh-token.dto';
 import { SignInDto } from '../../../libs/src/lib/dto/sign-in.dto';
 import { SignUpDto } from '../../../libs/src/lib/dto/sign-up.dto';
 import { HashingService } from './hashing/hashing.service';
-import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-token-ids.storage';
-import { UserEntity } from 'libs/src/lib/database/entities';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserAuthModel, uuid } from 'libs/src';
 import { InvalidatedRefreshTokenError } from './refresh-token-ids-storage/invalidated-refresh-token-error.storage';
-import { randomUUID } from 'crypto';
+import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-token-ids.storage';
 
 @Injectable()
 export class AuthenticationService {
@@ -33,11 +33,7 @@ export class AuthenticationService {
       user.password = await this._hashingService.hash(signUpDto.password);
       await this._userRepository.save(user);
     } catch (err) {
-      const pgUniqueViolationErrorCode = '23505';
-      if (err.code === pgUniqueViolationErrorCode) {
-        throw new ConflictException();
-      }
-      throw err;
+      throw new ConflictException();
     }
   }
 
