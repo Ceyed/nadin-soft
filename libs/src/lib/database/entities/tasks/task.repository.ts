@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { TaskEntity } from './task.entity';
 import { uuid } from 'libs/src/lib/constants';
+import { UpdateTaskDto } from 'libs/src/lib/dto';
+import { UpdateResultModel } from 'libs/src/lib/models';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { TaskEntity } from './task.entity';
 
 @Injectable()
 export class TaskRepository extends Repository<TaskEntity> {
@@ -9,8 +11,8 @@ export class TaskRepository extends Repository<TaskEntity> {
     super(TaskEntity, _dataSource.createEntityManager());
   }
 
-  async getOneOrFail(id: uuid) {
-    const task: TaskEntity = await this.findOneBy({ id });
+  async getOneOrFail(id: uuid, userId?: uuid) {
+    const task: TaskEntity = await this.findOneBy({ id, ...(userId && { userId }) });
     if (!task) throw new NotFoundException('Task not found!');
     return task;
   }
@@ -18,5 +20,10 @@ export class TaskRepository extends Repository<TaskEntity> {
   add(data: Partial<TaskEntity>): Promise<TaskEntity> {
     const task: TaskEntity = this.create(data);
     return this.save(task);
+  }
+
+  async edit(id: uuid, updateTaskDto: UpdateTaskDto): Promise<UpdateResultModel> {
+    const updateResult: UpdateResult = await this.update(id, updateTaskDto);
+    return { status: !!updateResult.affected };
   }
 }

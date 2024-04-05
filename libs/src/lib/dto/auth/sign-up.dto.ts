@@ -1,9 +1,4 @@
-import { IsEmail, MinLength } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
+import { UserEntity } from '../../database/entities';
 
-export class SignUpDto {
-  @IsEmail()
-  email: string;
-
-  @MinLength(10)
-  password: string;
-}
+export class SignUpDto extends PickType(UserEntity, ['email', 'password'] as const) {}

@@ -8,6 +8,7 @@ import {
   PutInfo,
   RouteTypeEnum,
   UpdateResultModel,
+  UpdateTaskDto,
   User,
   UserAuthModel,
   uuid,
@@ -29,17 +30,30 @@ export class TaskNormalController {
     return this._taskService.create(createTaskDto, user);
   }
 
-  @PutInfo(':id', ['id'], null, false, {
+  @PutInfo('upload/:id', ['id'], null, false, {
     summary: 'upload files for a task',
     description: 'this route upload one or more files for a task that belongs to active user',
     outputType: UpdateResultModel,
   })
   @ApiCustomFile(true, true)
-  update(
+  upload(
     @Param('id', ParseUUIDPipe) id: uuid,
     @User() user: UserAuthModel,
     @UploadedFiles() files: Express.Multer.File[],
-  ) {
+  ): Promise<UpdateResultModel> {
     return this._taskService.uploadFiles(id, user, files);
+  }
+
+  @PutInfo(':id', ['id'], UpdateTaskDto, false, {
+    summary: 'update task',
+    description: 'this route upload a task that belongs to active user',
+    outputType: UpdateResultModel,
+  })
+  update(
+    @Param('id', ParseUUIDPipe) id: uuid,
+    @User() user: UserAuthModel,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<UpdateResultModel> {
+    return this._taskService.update(id, user, updateTaskDto);
   }
 }

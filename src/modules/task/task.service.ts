@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateTaskDto, UpdateResultModel, UserAuthModel, uuid } from 'libs/src';
+import { CreateTaskDto, UpdateResultModel, UpdateTaskDto, UserAuthModel, uuid } from 'libs/src';
 import {
   FileEntity,
   FileRepository,
@@ -29,11 +29,20 @@ export class TaskService {
     user: UserAuthModel,
     files: Express.Multer.File[],
   ): Promise<UpdateResultModel> {
-    const task: TaskEntity = await this._taskRepository.getOneOrFail(id);
+    await this._taskRepository.getOneOrFail(id, user.sub);
 
     const linkPrefix: string = `${this._appConfig.host}:${this._appConfig.port}`;
     const savedFiles: FileEntity[] = await this._fileRepository.add(files, id, linkPrefix);
 
     return { status: !!savedFiles.length };
+  }
+
+  async update(
+    id: uuid,
+    user: UserAuthModel,
+    updateTaskDto: UpdateTaskDto,
+  ): Promise<UpdateResultModel> {
+    await this._taskRepository.getOneOrFail(id, user.sub);
+    return this._taskRepository.edit(id, updateTaskDto);
   }
 }
