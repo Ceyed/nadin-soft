@@ -1,5 +1,10 @@
 import { Body, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { NadinController, NadinModulesEnum, RouteTypeEnum } from 'libs/src';
+import {
+  AccessTokenAndRefreshTokenDto,
+  NadinController,
+  NadinModulesEnum,
+  RouteTypeEnum,
+} from 'libs/src';
 import { RefreshTokenDto } from '../../../libs/src/lib/dto/auth/refresh-token.dto';
 import { AuthenticationService } from './auth.service';
 
@@ -9,7 +14,7 @@ export class AuthNormalController {
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
-  refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
+  refreshTokens(@Body() refreshTokenDto: RefreshTokenDto): Promise<AccessTokenAndRefreshTokenDto> {
     return this._authenticationService.refreshTokens(refreshTokenDto);
   }
 }
