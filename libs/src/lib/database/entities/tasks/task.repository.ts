@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { uuid } from 'libs/src/lib/constants';
 import { FilterTasksDto, OrderDto, PaginationDto, UpdateTaskDto } from 'libs/src/lib/dto';
 import { UpdateResultModel, UserAuthModel } from 'libs/src/lib/models';
-import { DataSource, FindManyOptions, Like, Repository, UpdateResult } from 'typeorm';
+import { Between, DataSource, FindManyOptions, Like, Repository, UpdateResult } from 'typeorm';
 import { TaskEntity } from './task.entity';
 
 @Injectable()
@@ -23,12 +23,23 @@ export class TaskRepository extends Repository<TaskEntity> {
     };
 
     if (filters && Object.keys(filters).length) {
+      let baseFilters = {
+        ...options.where,
+      };
+      if (filters?.fromDate && filters?.toDate) {
+        baseFilters = {
+          ...baseFilters,
+          createdAt: Between(new Date(filters.fromDate), new Date(filters.toDate)),
+        };
+      }
       if (filters?.searchTerm) {
-        options.where = [
-          { ...options.where, name: Like(`%${filters.searchTerm}%`) },
-          { ...options.where, description: Like(`%${filters.searchTerm}%`) },
+        baseFilters = [
+          { ...baseFilters, name: Like(`%${filters.searchTerm}%`) },
+          { ...baseFilters, description: Like(`%${filters.searchTerm}%`) },
         ];
       }
+
+      options.where = baseFilters;
     }
 
     if (order?.order) {

@@ -1,5 +1,4 @@
-import { instanceToPlain } from 'class-transformer';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   CreateTaskDto,
   FilterTasksDto,
@@ -27,12 +26,13 @@ export class TaskService {
     private readonly _appConfig: AppConfig,
   ) {}
 
-  findAllWithPagination(
+  async findAllWithPagination(
     pagination: PaginationDto,
     order: OrderDto,
     user: UserAuthModel,
     filters: FilterTasksDto,
   ): Promise<[TaskEntity[], number]> {
+    if (filters && Object.keys(filters).length) this._validateDatesInFilter(filters);
     return this._taskRepository.findAllWithPagination(pagination, order, user, filters);
   }
 
@@ -73,5 +73,14 @@ export class TaskService {
 
   private async _softDeleteFiles(taskId: uuid): Promise<void> {
     await this._fileRepository.softDelete({ taskId });
+  }
+
+  private _validateDatesInFilter(filters: FilterTasksDto): void {
+    if ((filters?.fromDate && !filters?.toDate) || (!filters?.fromDate && filters?.toDate)) {
+      throw new BadRequestException('fromDate and toDate is required');
+    }
+    if (filters?.fromDate > filters?.toDate) {
+      throw new BadRequestException('fromDate must be less than toDate');
+    }
   }
 }
