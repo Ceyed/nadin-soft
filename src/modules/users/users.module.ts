@@ -11,6 +11,7 @@ import { appConfig } from 'src/app/configs/app.config';
 import { jwtConfig } from 'src/app/configs/jwt.config';
 import { BcryptService } from '../auth/hashing/bcrypt.service';
 import { HashingService } from '../auth/hashing/hashing.service';
+import { UsersAdminController } from './users.controller.admin';
 import { UsersNormalController } from './users.controller.normal';
 import { UsersService } from './users.service';
 
@@ -33,7 +34,7 @@ import { UsersService } from './users.service';
       }),
     }),
   ],
-  controllers: [UsersNormalController],
+  controllers: [UsersNormalController, UsersAdminController],
   providers: [
     UsersService,
     UserRepository,

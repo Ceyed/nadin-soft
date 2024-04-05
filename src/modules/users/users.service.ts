@@ -1,7 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import * as fs from 'fs';
-import { UpdateResultModel, UserAuthModel, uuid } from 'libs/src';
+import {
+  FilterUserDto,
+  OrderDto,
+  PaginationDto,
+  UpdateResultModel,
+  UserAuthModel,
+  uuid,
+} from 'libs/src';
 import {
   FileEntity,
   FileRepository,
@@ -24,6 +31,15 @@ export class UsersService {
     @Inject(appConfig.KEY)
     private readonly _appConfig: AppConfig,
   ) {}
+
+  getAllWithPagination(
+    pagination: PaginationDto,
+    order: OrderDto,
+    user: UserAuthModel,
+    filters: FilterUserDto,
+  ): Promise<[UserEntity[], number]> {
+    return this._userRepository.getAllWithPagination(pagination, order, user, filters);
+  }
 
   async update(id: uuid, updateUserDto: UpdateUserDto): Promise<UpdateResultModel> {
     if (updateUserDto?.password) {
