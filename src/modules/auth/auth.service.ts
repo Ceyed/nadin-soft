@@ -1,15 +1,13 @@
 import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { UserAuthModel, uuid } from 'libs/src';
-import { UserEntity } from 'libs/src/lib/database/entities';
+import { UserEntity, UserRepository } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
-import { Repository } from 'typeorm';
-import { RefreshTokenDto } from '../../../libs/src/lib/dto/refresh-token.dto';
-import { SignInDto } from '../../../libs/src/lib/dto/sign-in.dto';
-import { SignUpDto } from '../../../libs/src/lib/dto/sign-up.dto';
+import { RefreshTokenDto } from '../../../libs/src/lib/dto/auth/refresh-token.dto';
+import { SignInDto } from '../../../libs/src/lib/dto/auth/sign-in.dto';
+import { SignUpDto } from '../../../libs/src/lib/dto/auth/sign-up.dto';
 import { HashingService } from './hashing/hashing.service';
 import { InvalidatedRefreshTokenError } from './refresh-token-ids-storage/invalidated-refresh-token-error.storage';
 import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-token-ids.storage';
@@ -17,8 +15,7 @@ import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-toke
 @Injectable()
 export class AuthenticationService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly _userRepository: Repository<UserEntity>,
+    private readonly _userRepository: UserRepository,
     private readonly _hashingService: HashingService,
     private readonly _jwtService: JwtService,
     @Inject(jwtConfig.KEY)

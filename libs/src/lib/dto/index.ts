@@ -1,5 +1,5 @@
-export * from './create-user.dto';
-export * from './refresh-token.dto';
-export * from './sign-in.dto';
-export * from './sign-up.dto';
-export * from './update-user.dto';
+export * from './auth';
+export * from './task';
+export * from './user';
+
+export * from './shared-custom-route-info.dto';
