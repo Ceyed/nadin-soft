@@ -11,5 +11,7 @@ export * from './custom-post.decorator';
 export * from './custom-put.decorator';
 export * from './get-shared-decorators';
 export * from './nadin-controller.decorator';
+export * from './order-query';
+export * from './query-pagination';
 export * from './roles.decorator';
 export * from './user-auth.decorator';

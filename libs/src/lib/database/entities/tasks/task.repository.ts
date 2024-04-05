@@ -1,14 +1,37 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { uuid } from 'libs/src/lib/constants';
-import { UpdateTaskDto } from 'libs/src/lib/dto';
-import { UpdateResultModel } from 'libs/src/lib/models';
-import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { OrderDto, PaginationDto, UpdateTaskDto } from 'libs/src/lib/dto';
+import { UpdateResultModel, UserAuthModel } from 'libs/src/lib/models';
+import { DataSource, FindManyOptions, Repository, UpdateResult } from 'typeorm';
 import { TaskEntity } from './task.entity';
 
 @Injectable()
 export class TaskRepository extends Repository<TaskEntity> {
   constructor(private readonly _dataSource: DataSource) {
     super(TaskEntity, _dataSource.createEntityManager());
+  }
+
+  async findAllWithPagination(
+    pagination: PaginationDto,
+    order: OrderDto,
+    user: UserAuthModel,
+  ): Promise<[TaskEntity[], number]> {
+    const options: FindManyOptions<TaskEntity> = {
+      where: { userId: user.sub },
+      relations: { files: true },
+    };
+
+    if (order?.order) {
+      options.order = { [order.order]: order.orderBy };
+    } else {
+      options.order = { createdAt: 'DESC' };
+    }
+    if (pagination) {
+      options.skip = pagination.skip;
+      options.take = pagination.size;
+    }
+
+    return this.findAndCount(options);
   }
 
   async getOneOrFail(id: uuid, userId?: uuid) {

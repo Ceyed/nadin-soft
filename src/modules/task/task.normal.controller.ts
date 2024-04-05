@@ -3,10 +3,15 @@ import {
   ApiCustomFile,
   CreateTaskDto,
   DeleteInfo,
+  GetWithPagination,
   NadinController,
   NadinModulesEnum,
+  OrderDto,
+  PaginationDto,
   PostInfo,
   PutInfo,
+  QueryOrder,
+  QueryPagination,
   RouteTypeEnum,
   UpdateResultModel,
   UpdateTaskDto,
@@ -14,6 +19,7 @@ import {
   UserAuthModel,
   uuid,
 } from 'libs/src';
+import { Paginate } from 'libs/src/lib/classes';
 import { TaskEntity } from 'libs/src/lib/database/entities';
 import 'multer';
 import { TaskService } from './task.service';
@@ -21,6 +27,23 @@ import { TaskService } from './task.service';
 @NadinController(NadinModulesEnum.Task, 'tasks', RouteTypeEnum.NORMAL)
 export class TaskNormalController {
   constructor(private readonly _taskService: TaskService) {}
+
+  @GetWithPagination(
+    'all',
+    {
+      description: 'this route returns all the banks',
+      summary: 'get all bank',
+    },
+    TaskEntity,
+  )
+  async findAll(
+    @QueryPagination() pagination: PaginationDto,
+    @QueryOrder() order: OrderDto,
+    @User() user: UserAuthModel,
+  ): Promise<Paginate<TaskEntity>> {
+    const [tasks, total] = await this._taskService.findAllWithPagination(pagination, order, user);
+    return new Paginate(tasks, pagination.getPagination(total));
+  }
 
   @PostInfo('', CreateTaskDto, false, {
     summary: 'create task',
