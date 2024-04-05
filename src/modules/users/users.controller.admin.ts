@@ -8,6 +8,7 @@ import {
   NadinModulesEnum,
   OrderDto,
   PaginationDto,
+  PatchInfo,
   PutInfo,
   QueryOrder,
   QueryPagination,
@@ -69,11 +70,29 @@ export class UsersAdminController {
     outputType: UpdateResultModel,
   })
   @ApiCustomFile(false, true)
-  create(
+  updateAvatar(
     @Param('id', ParseUUIDPipe) id: uuid,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateResultModel> {
     return this._usersService.uploadAvatar(id, file);
+  }
+
+  @PatchInfo('promote/:id', ['id'], null, false, {
+    summary: 'promote a user to admin role',
+    description: 'this route promotes a user to admin role',
+    outputType: UpdateResultModel,
+  })
+  promote(@Param('id', ParseUUIDPipe) id: uuid): Promise<UpdateResultModel> {
+    return this._usersService.promote(id);
+  }
+
+  @PatchInfo('revoke/:id', ['id'], null, false, {
+    summary: 'revoke a user to base role',
+    description: 'this route revoke a user to base role',
+    outputType: UpdateResultModel,
+  })
+  revoke(@Param('id', ParseUUIDPipe) id: uuid): Promise<UpdateResultModel> {
+    return this._usersService.revoke(id);
   }
 
   @DeleteInfo(':id', ['id'], {

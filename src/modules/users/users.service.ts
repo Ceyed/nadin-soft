@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import * as fs from 'fs';
 import {
@@ -7,6 +7,7 @@ import {
   PaginationDto,
   UpdateResultModel,
   UserAuthModel,
+  UserRoleEnum,
   uuid,
 } from 'libs/src';
 import {
@@ -63,6 +64,22 @@ export class UsersService {
     const savedFile: FileEntity = await this._fileRepository.addAvatar(file, linkPrefix);
 
     return this._userRepository.edit(id, { avatarId: savedFile.id });
+  }
+
+  async promote(id: uuid): Promise<UpdateResultModel> {
+    const user: UserEntity = await this._userRepository.getOneOrFail(id);
+    if (user.role === UserRoleEnum.Admin) {
+      throw new BadRequestException('User is already admin!');
+    }
+    return this._userRepository.edit(id, { role: UserRoleEnum.Admin });
+  }
+
+  async revoke(id: uuid): Promise<UpdateResultModel> {
+    const user: UserEntity = await this._userRepository.getOneOrFail(id);
+    if (user.role === UserRoleEnum.BaseUser) {
+      throw new BadRequestException('User already has base role!');
+    }
+    return this._userRepository.edit(id, { role: UserRoleEnum.BaseUser });
   }
 
   async remove(id: uuid): Promise<UpdateResultModel> {
