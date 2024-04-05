@@ -3,6 +3,7 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { TaskModule } from 'src/modules/task/task.module';
 import { UsersModule } from 'src/modules/users/users.module';
 import { DataSourceOptions } from 'typeorm';
 import { AppController } from './app.controller';
@@ -10,6 +11,7 @@ import { AppService } from './app.service';
 import { appConfig } from './configs/app.config';
 import { jwtConfig } from './configs/jwt.config';
 import { typeormConfig } from './configs/typeorm.config';
+import { uploadConfig } from './configs/upload.config';
 
 export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'> = {
   migrations: [`${path.join(__dirname, './')}migrations/*.{ts,js}`],
@@ -24,6 +26,7 @@ export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'>
     }),
     ConfigModule.forFeature(appConfig),
     ConfigModule.forFeature(typeormConfig),
+    ConfigModule.forFeature(uploadConfig),
     ConfigModule.forFeature(jwtConfig),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(typeormConfig)],
@@ -47,6 +50,7 @@ export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'>
     }),
     AuthModule,
     UsersModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
