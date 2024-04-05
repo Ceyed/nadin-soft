@@ -18,7 +18,7 @@ export class UsersNormalController {
   constructor(private readonly _usersService: UsersService) {}
 
   @PutInfo('', null, UpdateUserDto, false, {
-    summary: 'update user info',
+    summary: 'update user profile',
     description: "this route updates active user's info",
     outputType: UpdateResultModel,
   })
@@ -36,6 +36,6 @@ export class UsersNormalController {
     @User() user: UserAuthModel,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateResultModel> {
-    return this._usersService.uploadAvatar(user, file);
+    return this._usersService.uploadAvatar(user.sub, file);
   }
 }

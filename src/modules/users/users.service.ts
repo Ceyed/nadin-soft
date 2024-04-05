@@ -50,8 +50,8 @@ export class UsersService {
     return this._userRepository.edit(id, updateUserDto);
   }
 
-  async uploadAvatar(user: UserAuthModel, file: Express.Multer.File): Promise<UpdateResultModel> {
-    const savedUser: UserEntity = await this._userRepository.getOneOrFail(user.sub);
+  async uploadAvatar(id: uuid, file: Express.Multer.File): Promise<UpdateResultModel> {
+    const savedUser: UserEntity = await this._userRepository.getOneOrFail(id);
     if (savedUser.avatar) {
       this._deleteOldAvatar(savedUser.avatar);
     }
@@ -59,7 +59,7 @@ export class UsersService {
     const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
     const savedFile: FileEntity = await this._fileRepository.addAvatar(file, linkPrefix);
 
-    return this._userRepository.edit(user.sub, { avatarId: savedFile.id });
+    return this._userRepository.edit(id, { avatarId: savedFile.id });
   }
 
   private _deleteOldAvatar(avatar: FileEntity): void {
