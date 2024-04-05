@@ -36,24 +36,21 @@ export class TaskService {
     return this._taskRepository.findAllWithPagination(pagination, order, user, filters);
   }
 
-  async create(createTaskDto: CreateTaskDto, user: UserAuthModel): Promise<TaskEntity> {
-    return this._taskRepository.add({
+  async create(
+    createTaskDto: CreateTaskDto,
+    user: UserAuthModel,
+    files: Express.Multer.File[],
+  ): Promise<TaskEntity> {
+    const task: TaskEntity = await this._taskRepository.add({
       ...createTaskDto,
       userId: user.sub,
     });
-  }
 
-  async uploadFiles(
-    id: uuid,
-    user: UserAuthModel,
-    files: Express.Multer.File[],
-  ): Promise<UpdateResultModel> {
-    await this._taskRepository.getOneOrFail(id, user.sub);
+    const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
+    const savedFiles: FileEntity[] = await this._fileRepository.add(files, task.id, linkPrefix);
 
-    const linkPrefix: string = `${this._appConfig.host}:${this._appConfig.port}`;
-    const savedFiles: FileEntity[] = await this._fileRepository.add(files, id, linkPrefix);
-
-    return { status: !!savedFiles.length };
+    task.files = savedFiles;
+    return task;
   }
 
   async update(

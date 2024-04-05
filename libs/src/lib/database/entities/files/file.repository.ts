@@ -14,7 +14,7 @@ export class FileRepository extends Repository<FileEntity> {
       files.map((file) => ({
         name: file.filename,
         originalName: file.originalname,
-        link: 'http://' + linkPrefix + '/' + file.path,
+        link: linkPrefix + '/' + file.path,
         path: file.path,
         taskId,
       })),
