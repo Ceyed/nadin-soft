@@ -1,7 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import * as fs from 'fs';
 import { UpdateResultModel, UserAuthModel, uuid } from 'libs/src';
-import { FileEntity, FileRepository, UserRepository } from 'libs/src/lib/database/entities';
+import {
+  FileEntity,
+  FileRepository,
+  UserEntity,
+  UserRepository,
+} from 'libs/src/lib/database/entities';
 import { appConfig, AppConfig } from 'src/app/configs/app.config';
 import { jwtConfig } from 'src/app/configs/jwt.config';
 import { UpdateUserDto } from '../../../libs/src/lib/dto/user/update-user.dto';
@@ -29,9 +35,19 @@ export class UsersService {
   }
 
   async uploadAvatar(user: UserAuthModel, file: Express.Multer.File): Promise<UpdateResultModel> {
+    const savedUser: UserEntity = await this._userRepository.getOneOrFail(user.sub);
+    if (savedUser.avatar) {
+      this._deleteOldAvatar(savedUser.avatar);
+    }
+
     const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
     const savedFile: FileEntity = await this._fileRepository.addAvatar(file, linkPrefix);
 
     return this._userRepository.edit(user.sub, { avatarId: savedFile.id });
+  }
+
+  private _deleteOldAvatar(avatar: FileEntity): void {
+    fs.unlinkSync(avatar.path);
+    this._fileRepository.softDelete(avatar.id);
   }
 }
