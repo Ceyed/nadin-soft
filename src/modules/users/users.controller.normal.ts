@@ -1,20 +1,19 @@
-import { NadinController, NadinModulesEnum, RouteTypeEnum } from 'libs/src';
+import { Body, Get, Param, Patch } from '@nestjs/common';
+import { NadinController, NadinModulesEnum, Role, RouteTypeEnum, UserRoleEnum } from 'libs/src';
+import { UpdateUserDto } from '../../../libs/src/lib/dto/user/update-user.dto';
 import { UsersService } from './users.service';
 
-@NadinController(NadinModulesEnum.User, 'users', RouteTypeEnum.NORMAL)
+@NadinController(NadinModulesEnum.User, 'users', RouteTypeEnum.ADMIN)
 export class UsersNormalController {
   constructor(private readonly _usersService: UsersService) {}
 
-  // @PutInfo(':id', ['id'], UpdateTaskDto, false, {
-  //   summary: 'update task',
-  //   description: 'this route upload a task that belongs to active user',
-  //   outputType: UpdateResultModel,
-  // })
-  // update(
-  //   @Param('id', ParseUUIDPipe) id: uuid,
-  //   @User() user: UserAuthModel,
-  //   @Body() updateTaskDto: UpdateTaskDto,
-  // ): Promise<UpdateResultModel> {
-  //   return this._taskService.update(id, user, updateTaskDto);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this._usersService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this._usersService.update(+id, updateUserDto);
+  }
 }
