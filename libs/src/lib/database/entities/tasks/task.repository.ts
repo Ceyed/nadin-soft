@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { uuid } from 'libs/src/lib/constants';
-import { OrderDto, PaginationDto, UpdateTaskDto } from 'libs/src/lib/dto';
+import { FilterTasksDto, OrderDto, PaginationDto, UpdateTaskDto } from 'libs/src/lib/dto';
 import { UpdateResultModel, UserAuthModel } from 'libs/src/lib/models';
-import { DataSource, FindManyOptions, Repository, UpdateResult } from 'typeorm';
+import { DataSource, FindManyOptions, Like, Repository, UpdateResult } from 'typeorm';
 import { TaskEntity } from './task.entity';
 
 @Injectable()
@@ -15,11 +15,21 @@ export class TaskRepository extends Repository<TaskEntity> {
     pagination: PaginationDto,
     order: OrderDto,
     user: UserAuthModel,
+    filters: FilterTasksDto,
   ): Promise<[TaskEntity[], number]> {
     const options: FindManyOptions<TaskEntity> = {
       where: { userId: user.sub },
       relations: { files: true },
     };
+
+    if (filters && Object.keys(filters).length) {
+      if (filters?.searchTerm) {
+        options.where = [
+          { ...options.where, name: Like(`%${filters.searchTerm}%`) },
+          { ...options.where, description: Like(`%${filters.searchTerm}%`) },
+        ];
+      }
+    }
 
     if (order?.order) {
       options.order = { [order.order]: order.orderBy };

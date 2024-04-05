@@ -1,8 +1,9 @@
-import { Body, Param, ParseUUIDPipe, UploadedFiles } from '@nestjs/common';
+import { Body, Param, ParseUUIDPipe, Query, UploadedFiles } from '@nestjs/common';
 import {
   ApiCustomFile,
   CreateTaskDto,
   DeleteInfo,
+  FilterTasksDto,
   GetWithPagination,
   NadinController,
   NadinModulesEnum,
@@ -35,13 +36,21 @@ export class TaskNormalController {
       summary: 'get all bank',
     },
     TaskEntity,
+    'filters',
+    FilterTasksDto,
   )
   async findAll(
     @QueryPagination() pagination: PaginationDto,
     @QueryOrder() order: OrderDto,
     @User() user: UserAuthModel,
+    @Query('filters') filters: FilterTasksDto,
   ): Promise<Paginate<TaskEntity>> {
-    const [tasks, total] = await this._taskService.findAllWithPagination(pagination, order, user);
+    const [tasks, total] = await this._taskService.findAllWithPagination(
+      pagination,
+      order,
+      user,
+      filters,
+    );
     return new Paginate(tasks, pagination.getPagination(total));
   }
 

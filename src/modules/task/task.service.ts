@@ -1,6 +1,8 @@
+import { instanceToPlain } from 'class-transformer';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateTaskDto,
+  FilterTasksDto,
   OrderDto,
   PaginationDto,
   UpdateResultModel,
@@ -29,8 +31,9 @@ export class TaskService {
     pagination: PaginationDto,
     order: OrderDto,
     user: UserAuthModel,
+    filters: FilterTasksDto,
   ): Promise<[TaskEntity[], number]> {
-    return this._taskRepository.findAllWithPagination(pagination, order, user);
+    return this._taskRepository.findAllWithPagination(pagination, order, user, filters);
   }
 
   async create(createTaskDto: CreateTaskDto, user: UserAuthModel): Promise<TaskEntity> {
