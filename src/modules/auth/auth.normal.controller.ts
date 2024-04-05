@@ -1,6 +1,6 @@
 import { Body, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { NadinController, NadinModulesEnum, RouteTypeEnum } from 'libs/src';
-import { RefreshTokenDto } from '../../../libs/src/lib/dto/refresh-token.dto';
+import { RefreshTokenDto } from '../../../libs/src/lib/dto/auth/refresh-token.dto';
 import { AuthenticationService } from './auth.service';
 
 @NadinController(NadinModulesEnum.Auth, 'auth', RouteTypeEnum.NORMAL)

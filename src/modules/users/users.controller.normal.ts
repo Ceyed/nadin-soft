@@ -1,7 +1,7 @@
-import { Body, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Get, Param, Patch, Post } from '@nestjs/common';
 import { NadinController, NadinModulesEnum, RouteTypeEnum } from 'libs/src';
-import { CreateUserDto } from '../../../libs/src/lib/dto/create-user.dto';
-import { UpdateUserDto } from '../../../libs/src/lib/dto/update-user.dto';
+import { CreateUserDto } from '../../../libs/src/lib/dto/user/create-user.dto';
+import { UpdateUserDto } from '../../../libs/src/lib/dto/user/update-user.dto';
 import { UsersService } from './users.service';
 
 @NadinController(NadinModulesEnum.User, 'users', RouteTypeEnum.NORMAL)

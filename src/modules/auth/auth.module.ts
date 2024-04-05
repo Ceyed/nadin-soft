@@ -4,7 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessTokenGuard, AuthenticationGuard, RoleGuard } from 'libs/src';
-import { UserEntity } from 'libs/src/lib/database/entities';
+import { UserEntity, UserRepository } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
 import { AuthNormalController } from './auth.normal.controller';
 import { AuthPublicController } from './auth.public.controller';
@@ -36,6 +36,7 @@ import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-toke
     AuthenticationService,
     AccessTokenGuard,
     RefreshTokenIdsStorage,
+    UserRepository,
   ],
 })
 export class AuthModule {}

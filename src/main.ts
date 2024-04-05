@@ -1,11 +1,20 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as express from 'express';
+import { UPLOAD_DIRECTORY } from 'libs/src';
+import * as path from 'path';
 import { AppModule } from './app/app.module';
 import { appConfig, AppConfig } from './app/configs/app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // * Active global pipes
+  app.useGlobalPipes(new ValidationPipe());
+
+  // * Serve static files from the 'uploads' directory
+  app.use(`/${path.basename(UPLOAD_DIRECTORY)}`, express.static(path.basename(UPLOAD_DIRECTORY)));
 
   // * Set a prefix to all routes
   const globalPrefix = 'api';
