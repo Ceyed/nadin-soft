@@ -45,4 +45,14 @@ export class TaskService {
     await this._taskRepository.getOneOrFail(id, user.sub);
     return this._taskRepository.edit(id, updateTaskDto);
   }
+
+  async remove(id: uuid, user: UserAuthModel): Promise<UpdateResultModel> {
+    await this._taskRepository.getOneOrFail(id, user.sub);
+    await this._softDeleteFiles(id);
+    return this._taskRepository.destroy(id);
+  }
+
+  private async _softDeleteFiles(taskId: uuid): Promise<void> {
+    await this._fileRepository.softDelete({ taskId });
+  }
 }

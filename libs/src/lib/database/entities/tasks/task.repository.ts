@@ -26,4 +26,9 @@ export class TaskRepository extends Repository<TaskEntity> {
     const updateResult: UpdateResult = await this.update(id, updateTaskDto);
     return { status: !!updateResult.affected };
   }
+
+  async destroy(id: uuid): Promise<UpdateResultModel> {
+    const UpdateResult = await this.softDelete({ id });
+    return { status: !!UpdateResult };
+  }
 }

@@ -38,7 +38,7 @@ export class FileEntity extends BaseEntity {
   @IsNotEmpty()
   taskId: uuid;
 
-  @ManyToOne(() => TaskEntity, (task) => task.files, { nullable: false })
+  @ManyToOne(() => TaskEntity, (task) => task.files)
   @JoinColumn({ name: 'taskId' })
   task: UserEntity;
 }

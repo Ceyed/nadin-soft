@@ -2,6 +2,7 @@ import { Body, Param, ParseUUIDPipe, UploadedFiles } from '@nestjs/common';
 import {
   ApiCustomFile,
   CreateTaskDto,
+  DeleteInfo,
   NadinController,
   NadinModulesEnum,
   PostInfo,
@@ -55,5 +56,16 @@ export class TaskNormalController {
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<UpdateResultModel> {
     return this._taskService.update(id, user, updateTaskDto);
+  }
+
+  @DeleteInfo(':id', ['id'], {
+    summary: 'delete one task',
+    description: 'this route deletes one task that belongs to active user',
+  })
+  remove(
+    @Param('id', ParseUUIDPipe) id: uuid,
+    @User() user: UserAuthModel,
+  ): Promise<UpdateResultModel> {
+    return this._taskService.remove(id, user);
   }
 }
