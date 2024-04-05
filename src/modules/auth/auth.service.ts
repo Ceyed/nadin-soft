@@ -1,8 +1,20 @@
-import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
-import { UserAuthModel, uuid } from 'libs/src';
+import {
+  AccessTokenAndRefreshTokenDto,
+  PASSWORD_VALIDATION_REGEX,
+  UpdateResultModel,
+  UserAuthModel,
+  uuid,
+} from 'libs/src';
 import { UserEntity, UserRepository } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
 import { RefreshTokenDto } from '../../../libs/src/lib/dto/auth/refresh-token.dto';
@@ -23,19 +35,25 @@ export class AuthenticationService {
     private readonly _refreshTokenIdsStorage: RefreshTokenIdsStorage,
   ) {}
 
-  async signUp(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto): Promise<UpdateResultModel> {
     try {
-      const user = new UserEntity();
+      this._validatePassword(signUpDto.password);
+
+      let user: UserEntity = new UserEntity();
       user.email = signUpDto.email;
       user.password = await this._hashingService.hash(signUpDto.password + this._jwtConfig.pepper);
-      await this._userRepository.save(user);
+      user.mobile = signUpDto.mobile;
+      user.username = signUpDto.username;
+      user = await this._userRepository.save(user);
+      return { status: !!user };
     } catch (err) {
-      throw new ConflictException();
+      if (err instanceof BadRequestException) throw err;
+      else throw new ConflictException('User with this credentials already exists');
     }
   }
 
-  async signIn(signInDto: SignInDto) {
-    const user = await this._userRepository.findOneBy({ email: signInDto.email });
+  async signIn(signInDto: SignInDto): Promise<AccessTokenAndRefreshTokenDto> {
+    const user = await this._userRepository.findOneBy({ username: signInDto.username });
     if (!user) {
       throw new UnauthorizedException('User does not exists');
     }
@@ -49,7 +67,7 @@ export class AuthenticationService {
     return this.generateTokens(user);
   }
 
-  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+  async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<AccessTokenAndRefreshTokenDto> {
     try {
       const { sub, refreshTokenId } = await this._jwtService.verifyAsync<
         Pick<UserAuthModel, 'sub'> & { refreshTokenId: string }
@@ -74,12 +92,14 @@ export class AuthenticationService {
     }
   }
 
-  async generateTokens(user: UserEntity) {
+  async generateTokens(user: UserEntity): Promise<AccessTokenAndRefreshTokenDto> {
     const refreshTokenId = randomUUID();
     const [accessToken, refreshToken] = await Promise.all([
       this._signToken<Partial<UserAuthModel>>(user.id, this._jwtConfig.accessTokenTtl, {
         email: user.email,
         role: user.role,
+        mobile: user.mobile,
+        username: user.username,
       }),
       this._signToken(user.id, this._jwtConfig.refreshTokenTtl, {
         refreshTokenId,
@@ -103,5 +123,13 @@ export class AuthenticationService {
         expiresIn,
       },
     );
+  }
+
+  private _validatePassword(password: string): void {
+    if (!PASSWORD_VALIDATION_REGEX.test(password)) {
+      throw new BadRequestException(
+        'Password should contain 1 lower-case and 1 upper-case letter with total of 8 characters',
+      );
+    }
   }
 }

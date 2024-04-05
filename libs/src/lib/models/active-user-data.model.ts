@@ -4,4 +4,6 @@ export interface UserAuthModel {
   sub: string;
   email: string;
   role: UserRoleEnum;
+  username: string;
+  mobile: string;
 }

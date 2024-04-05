@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as fs from 'fs';
-import { UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
+import { TASK_ATTACHMENT_UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
 import {
   FileEntity,
   FileRepository,
@@ -22,8 +22,8 @@ import { TaskService } from './task.service';
     MulterModule.register({
       storage: multer.diskStorage({
         destination(request, response, callback) {
-          fs.mkdirSync(UPLOAD_DIRECTORY, { recursive: true });
-          callback(null, UPLOAD_DIRECTORY);
+          fs.mkdirSync(TASK_ATTACHMENT_UPLOAD_DIRECTORY, { recursive: true });
+          callback(null, TASK_ATTACHMENT_UPLOAD_DIRECTORY);
         },
         filename(request, file, callback) {
           const fileName = uploadFileNameGenerator(file.originalname);

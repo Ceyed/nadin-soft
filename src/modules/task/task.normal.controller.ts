@@ -59,22 +59,19 @@ export class TaskNormalController {
     description: 'create task by user',
     outputType: TaskEntity,
   })
-  create(@Body() createTaskDto: CreateTaskDto, @User() user: UserAuthModel) {
-    return this._taskService.create(createTaskDto, user);
-  }
-
-  @PutInfo('upload/:id', ['id'], null, false, {
-    summary: 'upload files for a task',
-    description: 'this route upload one or more files for a task that belongs to active user',
-    outputType: UpdateResultModel,
+  @ApiCustomFile(true, true, {
+    requiredBodyFields: ['name'],
+    body: {
+      name: { type: 'string' },
+      description: { type: 'string' },
+    },
   })
-  @ApiCustomFile(true, true)
-  upload(
-    @Param('id', ParseUUIDPipe) id: uuid,
+  create(
+    @Body() createTaskDto: CreateTaskDto,
     @User() user: UserAuthModel,
     @UploadedFiles() files: Express.Multer.File[],
-  ): Promise<UpdateResultModel> {
-    return this._taskService.uploadFiles(id, user, files);
+  ): Promise<TaskEntity> {
+    return this._taskService.create(createTaskDto, user, files);
   }
 
   @PutInfo(':id', ['id'], UpdateTaskDto, false, {

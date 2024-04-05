@@ -1,25 +1,41 @@
-import { Body, Get, Param, Patch, Post } from '@nestjs/common';
-import { NadinController, NadinModulesEnum, RouteTypeEnum } from 'libs/src';
-import { CreateUserDto } from '../../../libs/src/lib/dto/user/create-user.dto';
+import { Body, UploadedFile } from '@nestjs/common';
+import {
+  ApiCustomFile,
+  NadinController,
+  NadinModulesEnum,
+  PutInfo,
+  RouteTypeEnum,
+  UpdateResultModel,
+  User,
+  UserAuthModel,
+  uuid,
+} from 'libs/src';
 import { UpdateUserDto } from '../../../libs/src/lib/dto/user/update-user.dto';
 import { UsersService } from './users.service';
 
 @NadinController(NadinModulesEnum.User, 'users', RouteTypeEnum.NORMAL)
 export class UsersNormalController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly _usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @PutInfo('', null, UpdateUserDto, false, {
+    summary: 'update user info',
+    description: "this route updates active user's info",
+    outputType: UpdateResultModel,
+  })
+  update(@Body() updateUserDto: UpdateUserDto, @User('sub') id: uuid): Promise<UpdateResultModel> {
+    return this._usersService.update(id, updateUserDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @PutInfo('upload-avatar', null, null, false, {
+    summary: 'upload avatar',
+    description: 'upload avatar for active user',
+    outputType: UpdateResultModel,
+  })
+  @ApiCustomFile(false, true)
+  create(
+    @User() user: UserAuthModel,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UpdateResultModel> {
+    return this._usersService.uploadAvatar(user, file);
   }
 }
