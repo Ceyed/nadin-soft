@@ -52,7 +52,10 @@ export class UserRepository extends Repository<UserEntity> {
   }
 
   async getOneOrFail(id: uuid): Promise<UserEntity> {
-    const user: UserEntity = await this.findOne({ where: { id }, relations: { avatar: true } });
+    const user: UserEntity = await this.findOne({
+      where: { id },
+      relations: { avatar: true, tasks: { files: true } },
+    });
     if (!user) throw new NotFoundException('User not found!');
     return user;
   }
@@ -60,5 +63,10 @@ export class UserRepository extends Repository<UserEntity> {
   async edit(id: uuid, data: Partial<UserEntity>): Promise<UpdateResultModel> {
     const updateResult: UpdateResult = await this.update(id, data);
     return { status: !!updateResult.affected };
+  }
+
+  async destroy(id: uuid): Promise<UpdateResultModel> {
+    const deleteResult: UpdateResult = await this.softDelete(id);
+    return { status: !!deleteResult };
   }
 }

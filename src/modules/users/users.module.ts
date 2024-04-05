@@ -5,7 +5,12 @@ import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import { AVATAR_UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
-import { FileRepository, UserEntity, UserRepository } from 'libs/src/lib/database/entities';
+import {
+  FileRepository,
+  TaskRepository,
+  UserEntity,
+  UserRepository,
+} from 'libs/src/lib/database/entities';
 import * as multer from 'multer';
 import { appConfig } from 'src/app/configs/app.config';
 import { jwtConfig } from 'src/app/configs/jwt.config';
@@ -39,6 +44,7 @@ import { UsersService } from './users.service';
     UsersService,
     UserRepository,
     FileRepository,
+    TaskRepository,
     {
       provide: HashingService,
       useClass: BcryptService,

@@ -1,6 +1,7 @@
 import { Body, Param, ParseUUIDPipe, Query, UploadedFile } from '@nestjs/common';
 import {
   ApiCustomFile,
+  DeleteInfo,
   FilterUserDto,
   GetWithPagination,
   NadinController,
@@ -73,5 +74,14 @@ export class UsersAdminController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateResultModel> {
     return this._usersService.uploadAvatar(id, file);
+  }
+
+  @DeleteInfo(':id', ['id'], {
+    summary: 'delete one user',
+    description: 'this route deletes one user with their all tasks',
+    outputType: UpdateResultModel,
+  })
+  remove(@Param('id', ParseUUIDPipe) id: uuid): Promise<UpdateResultModel> {
+    return this._usersService.remove(id);
   }
 }
