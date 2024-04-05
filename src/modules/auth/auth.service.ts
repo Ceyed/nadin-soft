@@ -30,7 +30,7 @@ export class AuthenticationService {
     try {
       const user = new UserEntity();
       user.email = signUpDto.email;
-      user.password = await this._hashingService.hash(signUpDto.password);
+      user.password = await this._hashingService.hash(signUpDto.password + this._jwtConfig.pepper);
       await this._userRepository.save(user);
     } catch (err) {
       throw new ConflictException();
@@ -42,7 +42,10 @@ export class AuthenticationService {
     if (!user) {
       throw new UnauthorizedException('User does not exists');
     }
-    const isEqual = await this._hashingService.compare(signInDto.password, user.password);
+    const isEqual = await this._hashingService.compare(
+      signInDto.password + this._jwtConfig.pepper,
+      user.password,
+    );
     if (!isEqual) {
       throw new UnauthorizedException('Password does not match');
     }

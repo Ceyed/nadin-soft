@@ -3,13 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessTokenGuard, AuthenticationGuard, RoleGuard } from 'libs/src';
 import { UserEntity } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
-import { AccessTokenGuard } from '../../../libs/src/lib/guards/access-token.guard';
-import { AuthenticationGuard } from '../../../libs/src/lib/guards/authentication.guard';
-import { RoleGuard } from '../../../libs/src/lib/guards/roles.guard';
-import { AuthenticationController } from './authentication.controller';
-import { AuthenticationService } from './authentication.service';
+import { AuthNormalController } from './auth.normal.controller';
+import { AuthPublicController } from './auth.public.controller';
+import { AuthenticationService } from './auth.service';
 import { BcryptService } from './hashing/bcrypt.service';
 import { HashingService } from './hashing/hashing.service';
 import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-token-ids.storage';
@@ -20,7 +19,7 @@ import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-toke
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthPublicController, AuthNormalController],
   providers: [
     {
       provide: HashingService,
