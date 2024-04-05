@@ -1,15 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsMobilePhone,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
+  IsUUID,
   MinLength,
 } from 'class-validator';
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { uuid } from 'libs/src/lib/constants';
+import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { UserRoleEnum } from '../../../enums';
 import { BaseEntity } from '../base.entity';
+import { FileEntity } from '../files';
 import { TaskEntity } from '../tasks';
 
 @Entity({ name: 'user' })
@@ -43,4 +46,14 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => TaskEntity, (task) => task.user, { nullable: true })
   tasks: TaskEntity[];
+
+  @Column({ nullable: true })
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  avatarId?: uuid;
+
+  @OneToOne(() => FileEntity, { nullable: true })
+  @JoinColumn({ name: 'avatarId' })
+  avatar?: FileEntity;
 }

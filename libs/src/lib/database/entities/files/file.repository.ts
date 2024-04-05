@@ -9,7 +9,11 @@ export class FileRepository extends Repository<FileEntity> {
     super(FileEntity, _dataSource.createEntityManager());
   }
 
-  add(files: Express.Multer.File[], taskId: uuid, linkPrefix: string): Promise<FileEntity[]> {
+  addAttachmentForTask(
+    files: Express.Multer.File[],
+    taskId: uuid,
+    linkPrefix: string,
+  ): Promise<FileEntity[]> {
     return this.save(
       files.map((file) => ({
         name: file.filename,
@@ -19,5 +23,15 @@ export class FileRepository extends Repository<FileEntity> {
         taskId,
       })),
     );
+  }
+
+  addAvatar(file: Express.Multer.File, linkPrefix: string): Promise<FileEntity> {
+    console.log({ file });
+    return this.save({
+      name: file.filename,
+      originalName: file.originalname,
+      link: linkPrefix + '/' + file.path,
+      path: file.path,
+    });
   }
 }

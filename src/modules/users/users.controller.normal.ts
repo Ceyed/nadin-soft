@@ -1,11 +1,13 @@
-import { Body } from '@nestjs/common';
+import { Body, UploadedFile } from '@nestjs/common';
 import {
+  ApiCustomFile,
   NadinController,
   NadinModulesEnum,
   PutInfo,
   RouteTypeEnum,
   UpdateResultModel,
   User,
+  UserAuthModel,
   uuid,
 } from 'libs/src';
 import { UpdateUserDto } from '../../../libs/src/lib/dto/user/update-user.dto';
@@ -22,5 +24,18 @@ export class UsersNormalController {
   })
   update(@Body() updateUserDto: UpdateUserDto, @User('sub') id: uuid): Promise<UpdateResultModel> {
     return this._usersService.update(id, updateUserDto);
+  }
+
+  @PutInfo('upload-avatar', null, null, false, {
+    summary: 'upload avatar',
+    description: 'upload avatar for active user',
+    outputType: UpdateResultModel,
+  })
+  @ApiCustomFile(false, true)
+  create(
+    @User() user: UserAuthModel,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UpdateResultModel> {
+    return this._usersService.uploadAvatar(user, file);
   }
 }

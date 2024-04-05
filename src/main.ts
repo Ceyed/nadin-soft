@@ -2,8 +2,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
-import { UPLOAD_DIRECTORY } from 'libs/src';
-import * as path from 'path';
+import { AVATAR_UPLOAD_DIRECTORY, TASK_ATTACHMENT_UPLOAD_DIRECTORY } from 'libs/src';
 import { AppModule } from './app/app.module';
 import { appConfig, AppConfig } from './app/configs/app.config';
 
@@ -13,8 +12,12 @@ async function bootstrap() {
   // * Active global pipes
   app.useGlobalPipes(new ValidationPipe());
 
-  // * Serve static files from the 'uploads' directory
-  app.use(`/${path.basename(UPLOAD_DIRECTORY)}`, express.static(path.basename(UPLOAD_DIRECTORY)));
+  // * Serve static files from the 'files' directory
+  app.use(
+    TASK_ATTACHMENT_UPLOAD_DIRECTORY.substring(1),
+    express.static(TASK_ATTACHMENT_UPLOAD_DIRECTORY),
+  );
+  app.use(AVATAR_UPLOAD_DIRECTORY.substring(1), express.static(AVATAR_UPLOAD_DIRECTORY));
 
   // * Set a prefix to all routes
   const globalPrefix = 'api';

@@ -47,7 +47,11 @@ export class TaskService {
     });
 
     const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
-    const savedFiles: FileEntity[] = await this._fileRepository.add(files, task.id, linkPrefix);
+    const savedFiles: FileEntity[] = await this._fileRepository.addAttachmentForTask(
+      files,
+      task.id,
+      linkPrefix,
+    );
 
     task.files = savedFiles;
     return task;

@@ -6,4 +6,6 @@ export class SignUpDto extends OmitType(UserEntity, [
   ...GLOBAL_EXCEPT_DTO,
   'role',
   'tasks',
+  'avatar',
+  'avatarId',
 ] as const) {}
