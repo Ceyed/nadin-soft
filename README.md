@@ -12,8 +12,7 @@ This project is a task management system designed to facilitate task tracking an
 
 ## Functionality
 
-- **User Roles:** The system supports two roles: base-user and admin. <br />
-  Base users can manage their own tasks and profiles, while admins have additional privileges, such as viewing all user profiles and tasks, as well as promoting base users to admin status and revoking admin privileges.
+- **User Roles:** The system supports two roles: base-user and admin. Base users can manage their own tasks and profiles, while admins have additional privileges, such as viewing all user profiles and tasks, as well as promoting base users to admin status and revoking admin privileges.
 
 ## Technologies Used
 
