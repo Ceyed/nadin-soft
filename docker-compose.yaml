@@ -9,13 +9,17 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
 
   redis:
     image: redis
+    container_name: redis
     ports:
       - '6379:6379'
     restart: always
+    volumes:
+      - redis-data:/data
 
 volumes:
-  mysql_data:
+  mysql-data:
+  redis-data:
