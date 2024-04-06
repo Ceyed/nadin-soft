@@ -3,7 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccessTokenGuard, AuthenticationGuard, RoleGuard } from 'libs/src';
+import {
+  AccessTokenGuard,
+  AuthenticationGuard,
+  RedisHelperModule,
+  RoleGuard,
+} from 'libs/src';
 import { UserEntity, UserRepository } from 'libs/src/lib/database/entities';
 import { jwtConfig } from 'src/app/configs/jwt.config';
 import { AuthNormalController } from './auth.normal.controller';
@@ -18,6 +23,7 @@ import { RefreshTokenIdsStorage } from './refresh-token-ids-storage/refresh-toke
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
+    RedisHelperModule,
   ],
   controllers: [AuthPublicController, AuthNormalController],
   providers: [

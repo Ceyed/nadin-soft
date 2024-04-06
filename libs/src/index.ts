@@ -6,3 +6,4 @@ export * from './lib/guards';
 export * from './lib/interface';
 export * from './lib/models';
 export * from './lib/utils';
+export * from './lib/modules';
