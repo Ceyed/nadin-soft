@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as path from 'path';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { TaskModule } from 'src/modules/task/task.module';
 import { UsersModule } from 'src/modules/users/users.module';
@@ -12,11 +11,7 @@ import { appConfig } from './configs/app.config';
 import { jwtConfig } from './configs/jwt.config';
 import { typeormConfig } from './configs/typeorm.config';
 import { uploadConfig } from './configs/upload.config';
-
-export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'> = {
-  migrations: [`${path.join(__dirname, './')}migrations/*.{ts,js}`],
-  entities: [`${path.join(__dirname, './')}entities/**/*.entity.{ts,js}`],
-};
+import { NADIN_DB_CONFIG, RedisHelperModule } from 'libs/src';
 
 @Module({
   imports: [
@@ -51,6 +46,7 @@ export const NADIN_DB_CONFIG: Pick<DataSourceOptions, 'entities' | 'migrations'>
     AuthModule,
     UsersModule,
     TaskModule,
+    RedisHelperModule,
   ],
   controllers: [AppController],
   providers: [AppService],

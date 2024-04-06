@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as fs from 'fs';
-import { TASK_ATTACHMENT_UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
+import { RedisHelperModule, TASK_ATTACHMENT_UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
 import {
   FileEntity,
   FileRepository,
@@ -31,6 +31,7 @@ import { TaskService } from './task.service';
         },
       }),
     }),
+    RedisHelperModule
   ],
   controllers: [TaskNormalController],
   providers: [TaskService, TaskRepository, FileRepository],

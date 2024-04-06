@@ -4,6 +4,9 @@ import {
   FilterTasksDto,
   OrderDto,
   PaginationDto,
+  RedisHelperService,
+  RedisPrefixesEnum,
+  RedisSubPrefixesEnum,
   UpdateResultModel,
   UpdateTaskDto,
   UserAuthModel,
@@ -24,6 +27,7 @@ export class TaskService {
     private readonly _fileRepository: FileRepository,
     @Inject(appConfig.KEY)
     private readonly _appConfig: AppConfig,
+    private readonly _redisHelperService: RedisHelperService,
   ) {}
 
   async findAllWithPagination(
@@ -32,8 +36,20 @@ export class TaskService {
     user: UserAuthModel,
     filters: FilterTasksDto,
   ): Promise<[TaskEntity[], number]> {
-    if (filters && Object.keys(filters).length) this._validateDatesInFilter(filters);
-    return this._taskRepository.findAllWithPagination(pagination, order, user, filters);
+    if (filters && Object.keys(filters).length)
+      this._validateDatesInFilter(filters);
+
+    const redisKey = this._getRedisKey(user.sub);
+    return this._redisHelperService.getFromCacheOrDb<[TaskEntity[], number]>(
+      redisKey,
+      async () =>
+        this._taskRepository.findAllWithPagination(
+          pagination,
+          order,
+          user,
+          filters,
+        ),
+    );
   }
 
   async create(
@@ -47,12 +63,16 @@ export class TaskService {
     });
 
     const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
-    const savedFiles: FileEntity[] = await this._fileRepository.addAttachmentForTask(
-      files,
-      task.id,
-      linkPrefix,
-    );
+    const savedFiles: FileEntity[] =
+      await this._fileRepository.addAttachmentForTask(
+        files,
+        task.id,
+        linkPrefix,
+      );
 
+    this._removeUserTasksFromRedis(user.sub);
+
+    // * Just for return object
     task.files = savedFiles;
     return task;
   }
@@ -63,12 +83,14 @@ export class TaskService {
     updateTaskDto: UpdateTaskDto,
   ): Promise<UpdateResultModel> {
     await this._taskRepository.getOneOrFail(id, user.sub);
+    this._removeUserTasksFromRedis(user.sub);
     return this._taskRepository.edit(id, updateTaskDto);
   }
 
   async remove(id: uuid, user: UserAuthModel): Promise<UpdateResultModel> {
     await this._taskRepository.getOneOrFail(id, user.sub);
     await this._softDeleteFiles(id);
+    this._removeUserTasksFromRedis(user.sub);
     return this._taskRepository.destroy(id);
   }
 
@@ -77,11 +99,27 @@ export class TaskService {
   }
 
   private _validateDatesInFilter(filters: FilterTasksDto): void {
-    if ((filters?.fromDate && !filters?.toDate) || (!filters?.fromDate && filters?.toDate)) {
+    if (
+      (filters?.fromDate && !filters?.toDate) ||
+      (!filters?.fromDate && filters?.toDate)
+    ) {
       throw new BadRequestException('fromDate and toDate is required');
     }
     if (filters?.fromDate > filters?.toDate) {
       throw new BadRequestException('fromDate must be less than toDate');
     }
+  }
+
+  private _getRedisKey(userId: uuid): string {
+    return this._redisHelperService.getStandardKey(
+      RedisPrefixesEnum.Task,
+      RedisSubPrefixesEnum.All,
+      userId,
+    );
+  }
+
+  private _removeUserTasksFromRedis(userId: uuid): void {
+    const redisKey = this._getRedisKey(userId);
+    this._redisHelperService.removeCache(redisKey);
   }
 }
