@@ -4,7 +4,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as fs from 'fs';
-import { AVATAR_UPLOAD_DIRECTORY, uploadFileNameGenerator } from 'libs/src';
+import {
+  AVATAR_UPLOAD_DIRECTORY,
+  RedisHelperModule,
+  uploadFileNameGenerator,
+} from 'libs/src';
 import {
   FileRepository,
   TaskRepository,
@@ -38,6 +42,7 @@ import { UsersService } from './users.service';
         },
       }),
     }),
+    RedisHelperModule,
   ],
   controllers: [UsersNormalController, UsersAdminController],
   providers: [

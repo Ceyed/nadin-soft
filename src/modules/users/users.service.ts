@@ -5,6 +5,9 @@ import {
   FilterUserDto,
   OrderDto,
   PaginationDto,
+  RedisHelperService,
+  RedisPrefixesEnum,
+  RedisSubPrefixesEnum,
   UpdateResultModel,
   UserAuthModel,
   UserRoleEnum,
@@ -34,6 +37,7 @@ export class UsersService {
     private readonly _taskRepository: TaskRepository,
     @Inject(appConfig.KEY)
     private readonly _appConfig: AppConfig,
+    private readonly _redisHelperService: RedisHelperService,
   ) {}
 
   getAllWithPagination(
@@ -42,27 +46,48 @@ export class UsersService {
     user: UserAuthModel,
     filters: FilterUserDto,
   ): Promise<[UserEntity[], number]> {
-    return this._userRepository.getAllWithPagination(pagination, order, user, filters);
+    const redisKey = this._getRedisKey();
+    return this._redisHelperService.getFromCacheOrDb<[UserEntity[], number]>(
+      redisKey,
+      async () =>
+        this._userRepository.getAllWithPagination(
+          pagination,
+          order,
+          user,
+          filters,
+        ),
+    );
   }
 
-  async update(id: uuid, updateUserDto: UpdateUserDto): Promise<UpdateResultModel> {
+  async update(
+    id: uuid,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UpdateResultModel> {
     if (updateUserDto?.password) {
       updateUserDto.password = await this._hashingService.hash(
         updateUserDto.password + this._jwtConfig.pepper,
       );
     }
+    this._removeUserTasksFromRedis();
     return this._userRepository.edit(id, updateUserDto);
   }
 
-  async uploadAvatar(id: uuid, file: Express.Multer.File): Promise<UpdateResultModel> {
+  async uploadAvatar(
+    id: uuid,
+    file: Express.Multer.File,
+  ): Promise<UpdateResultModel> {
     const savedUser: UserEntity = await this._userRepository.getOneOrFail(id);
     if (savedUser.avatar) {
       this._deleteOldAvatar(savedUser.avatar);
     }
 
     const linkPrefix: string = `http://${this._appConfig.host}:${this._appConfig.port}`;
-    const savedFile: FileEntity = await this._fileRepository.addAvatar(file, linkPrefix);
+    const savedFile: FileEntity = await this._fileRepository.addAvatar(
+      file,
+      linkPrefix,
+    );
 
+    this._removeUserTasksFromRedis();
     return this._userRepository.edit(id, { avatarId: savedFile.id });
   }
 
@@ -71,6 +96,7 @@ export class UsersService {
     if (user.role === UserRoleEnum.Admin) {
       throw new BadRequestException('User is already admin!');
     }
+    this._removeUserTasksFromRedis();
     return this._userRepository.edit(id, { role: UserRoleEnum.Admin });
   }
 
@@ -79,12 +105,14 @@ export class UsersService {
     if (user.role === UserRoleEnum.BaseUser) {
       throw new BadRequestException('User already has base role!');
     }
+    this._removeUserTasksFromRedis();
     return this._userRepository.edit(id, { role: UserRoleEnum.BaseUser });
   }
 
   async remove(id: uuid): Promise<UpdateResultModel> {
     const user: UserEntity = await this._userRepository.getOneOrFail(id);
     this._deleteUserTasks(user);
+    this._removeUserTasksFromRedis();
     return this._userRepository.destroy(id);
   }
 
@@ -95,13 +123,29 @@ export class UsersService {
 
   private _deleteUserTasks(user: UserEntity): void {
     // * Remove files
-    const fileIds: uuid[] = user?.tasks?.map((task) => task.files.map((file) => file.id)).flat();
+    const fileIds: uuid[] = user?.tasks
+      ?.map((task) => task.files.map((file) => file.id))
+      .flat();
     this._fileRepository.softDelete({
       id: In(fileIds),
     });
-    user?.tasks?.map((task) => task.files.map((file) => fs.unlinkSync(file.path)));
+    user?.tasks?.map((task) =>
+      task.files.map((file) => fs.unlinkSync(file.path)),
+    );
 
     // * Remove tasks
     this._taskRepository.softDelete({ userId: user.id });
+  }
+
+  private _getRedisKey(): string {
+    return this._redisHelperService.getStandardKeyWithoutId(
+      RedisPrefixesEnum.User,
+      RedisSubPrefixesEnum.All,
+    );
+  }
+
+  private _removeUserTasksFromRedis(): void {
+    const redisKey = this._getRedisKey();
+    this._redisHelperService.removeCache(redisKey);
   }
 }
