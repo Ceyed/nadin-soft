@@ -35,20 +35,25 @@ To install the project automatically, navigate to the project folder in your ter
 ### Manual Installation
 
 For manual installation, follow these steps:
+1. Create `.env` file:
 
-1. Start the Docker containers by running the following command in the project folder:
+   ```bash
+   cp .env.sample .env
+   ```
+
+2. Start the Docker containers by running the following command in the project folder:
 
    ```bash
    docker compose up -d
    ```
 
-2. Install project dependencies using pnpm:
+3. Install project dependencies using pnpm:
 
    ```bash
    pnpm i
    ```
 
-3. Start the server:
+4. Start the server:
 
    ```bash
    pnpm start
