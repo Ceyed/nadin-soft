@@ -9,7 +9,14 @@ import {
   MinLength,
 } from 'class-validator';
 import { uuid } from 'libs/src/lib/constants';
-import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { UserRoleEnum } from '../../../enums';
 import { BaseEntity } from '../base.entity';
 import { FileEntity } from '../files';
@@ -25,7 +32,9 @@ export class UserEntity extends BaseEntity {
 
   @Column({ unique: true })
   @ApiProperty()
-  @IsPhoneNumber()
+  @IsPhoneNumber(undefined, {
+    message: 'Phone number should be in this format: +989XXXXXXXXX',
+  })
   @IsNotEmpty()
   mobile: string;
 
@@ -41,7 +50,11 @@ export class UserEntity extends BaseEntity {
   password: string;
 
   @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.BaseUser })
-  @ApiProperty({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.BaseUser })
+  @ApiProperty({
+    type: 'enum',
+    enum: UserRoleEnum,
+    default: UserRoleEnum.BaseUser,
+  })
   role: UserRoleEnum;
 
   @OneToMany(() => TaskEntity, (task) => task.user, { nullable: true })
